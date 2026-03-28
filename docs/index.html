@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2d7a3a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dārzs">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>🌱 Dārza monitors</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+  :root { --green:#2d7a3a; --green-light:#e8f5e9; --bg:#f1f8f1; --card:#fff; --gray:#555; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,sans-serif;background:var(--bg);color:#222;max-width:600px;margin:0 auto}
+  header{background:var(--green);color:#fff;padding:1rem 1.2rem;display:flex;align-items:center;gap:.75rem}
+  header .icon{font-size:1.8rem}
+  header h1{font-size:1.1rem;font-weight:700}
+  header p{font-size:.78rem;opacity:.85;margin-top:2px}
+  .server-bar{background:#1b5e20;padding:.4rem 1rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+  .server-bar label{color:#a5d6a7;font-size:.75rem}
+  .server-bar input{flex:1;min-width:140px;padding:.25rem .5rem;border-radius:6px;border:none;
+    font-size:.82rem;background:#2d7a3a;color:#fff}
+  .server-bar input::placeholder{color:#81c784}
+  .server-bar button{padding:.25rem .75rem;background:#4caf50;color:#fff;border:none;
+    border-radius:6px;font-size:.82rem;cursor:pointer}
+  .status-dot{width:8px;height:8px;border-radius:50%;background:#ef5350;flex-shrink:0}
+  .status-dot.online{background:#66bb6a}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.65rem;padding:.85rem}
+  .card{background:var(--card);border-radius:12px;padding:.85rem;box-shadow:0 1px 4px rgba(0,0,0,.09)}
+  .card .lbl{font-size:.68rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .card .val{font-size:1.5rem;font-weight:700;color:var(--green)}
+  .card .unit{font-size:.72rem;color:var(--gray)}
+  .card.warn{border-left:4px solid #f9a825}
+  .card.danger{border-left:4px solid #c62828}
+  .section{padding:0 .85rem .85rem}
+  .section h2{font-size:.78rem;color:var(--gray);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.4rem}
+  .chart-box{background:var(--card);border-radius:12px;padding:.85rem;box-shadow:0 1px 4px rgba(0,0,0,.09)}
+  .stat-table{width:100%;border-collapse:collapse;font-size:.82rem}
+  .stat-table td,.stat-table th{padding:5px 7px;border-bottom:1px solid #eee;text-align:left}
+  .stat-table th{color:var(--gray);font-weight:600}
+  .badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.78rem;font-weight:600}
+  .badge.low{background:#c8e6c9;color:#1b5e20}
+  .badge.medium{background:#fff9c4;color:#f57f17}
+  .badge.high{background:#ffcdd2;color:#b71c1c}
+  .badge.unknown{background:#eee;color:#555}
+  .photos{background:var(--card);border-radius:12px;padding:.85rem;box-shadow:0 1px 4px rgba(0,0,0,.09);overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.78rem}
+  td,th{padding:5px 7px;border-bottom:1px solid #f0f0f0;text-align:left;white-space:nowrap}
+  th{color:var(--gray);font-weight:600}
+  .refresh-row{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1rem .75rem}
+  .btn{background:var(--green);color:#fff;border:none;border-radius:8px;
+    padding:.45rem 1rem;font-size:.85rem;cursor:pointer}
+  .ts{font-size:.72rem;color:#aaa}
+  .offline-banner{background:#fff3e0;color:#e65100;padding:.5rem 1rem;font-size:.82rem;
+    text-align:center;display:none}
+  .offline-banner.show{display:block}
+  .install-bar{background:#e8f5e9;border-bottom:1px solid #c8e6c9;padding:.5rem 1rem;
+    display:none;align-items:center;justify-content:space-between;font-size:.82rem;color:#2d7a3a}
+  .install-bar.show{display:flex}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="icon">🌱</div>
+  <div>
+    <h1>Dārza monitors</h1>
+    <p>Kazas sēklis, Lucavsala, Rīga</p>
+  </div>
+</header>
+
+<div class="server-bar">
+  <div class="status-dot" id="dot"></div>
+  <label>Serveris:</label>
+  <input id="server-url" type="text" placeholder="http://localhost:8080" value="">
+  <button onclick="saveServer()">Savienot</button>
+</div>
+
+<div class="offline-banner" id="offline-banner">
+  ⚠️ Nav savienojuma ar sensoru serveri. Palaid <b>bash ~/Garden-/web.sh</b> Termux.
+</div>
+
+<div class="install-bar" id="install-bar">
+  📲 Instalē kā lietotni sākumekrānā
+  <button class="btn" id="install-btn" onclick="installPWA()">Instalēt</button>
+</div>
+
+<div id="live-grid" class="grid"></div>
+
+<div class="section">
+  <h2>📊 Spiediens un augstums šodien</h2>
+  <div class="chart-box"><canvas id="chart" height="180"></canvas></div>
+</div>
+
+<div class="section" style="margin-top:.5rem">
+  <h2>📋 Statistika</h2>
+  <div class="chart-box" id="stats-box">—</div>
+</div>
+
+<div class="section" style="margin-top:.5rem">
+  <h2>📸 Pēdējie foto</h2>
+  <div class="photos"><table id="photo-table"><tr><td style="color:#aaa">—</td></tr></table></div>
+</div>
+
+<div class="refresh-row">
+  <button class="btn" onclick="refreshAll()">🔄 Atjaunināt</button>
+  <span class="ts" id="last-ts"></span>
+</div>
+
+<script>
+// --- Server URL ---
+let BASE = localStorage.getItem("darzs-server") || "http://localhost:8080";
+document.getElementById("server-url").value = BASE;
+
+function saveServer() {
+  BASE = document.getElementById("server-url").value.replace(/\/$/, "");
+  localStorage.setItem("darzs-server", BASE);
+  refreshAll();
+}
+
+// --- PWA Install ---
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById("install-bar").classList.add("show");
+});
+function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => {
+    deferredPrompt = null;
+    document.getElementById("install-bar").classList.remove("show");
+  });
+}
+window.addEventListener("appinstalled", () => {
+  document.getElementById("install-bar").classList.remove("show");
+});
+
+// --- Service Worker ---
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+// --- API helpers ---
+let chart = null;
+let isOnline = false;
+
+function setOnline(v) {
+  isOnline = v;
+  document.getElementById("dot").className = "status-dot" + (v ? " online" : "");
+  document.getElementById("offline-banner").className = "offline-banner" + (v ? "" : " show");
+}
+
+async function api(path) {
+  const r = await fetch(BASE + path, { signal: AbortSignal.timeout(6000) });
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+function fmt(v, dec=1) {
+  return (v !== null && v !== undefined && v !== "") ? Number(v).toFixed(dec) : "—";
+}
+
+// --- Live cards ---
+async function loadLive() {
+  try {
+    const d = await api("/api/live");
+    setOnline(true);
+    const cls = p => p !== null && p < 20 ? "warn" : "";
+    document.getElementById("live-grid").innerHTML = [
+      { lbl:"Spiediens", val:fmt(d.pressure), unit:"hPa" },
+      { lbl:"Baro augstums", val:fmt(d.baro_altitude), unit:"m" },
+      { lbl:"GPS augstums", val:fmt(d.gps_altitude), unit:"m" },
+      { lbl:"Platums", val:d.latitude ? Number(d.latitude).toFixed(5):"—", unit:"°N" },
+      { lbl:"Garums", val:d.longitude ? Number(d.longitude).toFixed(5):"—", unit:"°E" },
+      { lbl:"Akumulators", val:d.battery ?? "—", unit:"%", extra: cls(d.battery) },
+    ].map(c => `<div class="card ${c.extra||''}">
+      <div class="lbl">${c.lbl}</div>
+      <div class="val">${c.val} <span class="unit">${c.unit}</span></div>
+    </div>`).join("");
+  } catch {
+    setOnline(false);
+    document.getElementById("live-grid").innerHTML =
+      `<div class="card" style="grid-column:1/-1;color:#aaa;text-align:center">
+        📡 Nav datu — serveris nav pieejams
+      </div>`;
+  }
+}
+
+// --- Chart ---
+async function loadChart() {
+  try {
+    const d = await api("/api/chart");
+    const ctx = document.getElementById("chart").getContext("2d");
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: d.labels,
+        datasets: [
+          { label:"Spiediens (hPa)", data:d.pressure, borderColor:"#2d7a3a",
+            backgroundColor:"rgba(45,122,58,.08)", tension:.3, yAxisID:"y1" },
+          { label:"Baro augstums (m)", data:d.baro_altitude, borderColor:"#1565c0",
+            backgroundColor:"rgba(21,101,192,.06)", tension:.3, yAxisID:"y2", borderDash:[4,3] },
+        ]
+      },
+      options: {
+        responsive:true,
+        interaction:{mode:"index",intersect:false},
+        scales:{
+          y1:{type:"linear",position:"left",title:{display:true,text:"hPa"}},
+          y2:{type:"linear",position:"right",title:{display:true,text:"m"},grid:{drawOnChartArea:false}}
+        },
+        plugins:{legend:{position:"bottom"}}
+      }
+    });
+  } catch {}
+}
+
+// --- Stats ---
+async function loadStats() {
+  try {
+    const d = await api("/api/today");
+    if (d.error) { document.getElementById("stats-box").innerHTML = `<span style="color:#aaa">${d.error}</span>`; return; }
+    const risk = {low:"✅ Zems",medium:"⚠️ Vidējs",high:"🚨 Augsts",unknown:"❓"}[d.flood_risk]||"";
+    const storm = d.storm_warning ? `<p style="color:#c62828;font-weight:600;margin-bottom:.5rem">⛈️ Vētras brīdinājums!</p>` : "";
+    document.getElementById("stats-box").innerHTML = `
+      ${storm}
+      <table class="stat-table">
+        <tr><th>Parametrs</th><th>Min</th><th>Vid</th><th>Max</th></tr>
+        <tr><td>Spiediens (hPa)</td><td>${fmt(d.pressure.min)}</td><td>${fmt(d.pressure.avg)}</td><td>${fmt(d.pressure.max)}</td></tr>
+        <tr><td>GPS augstums (m)</td><td>${fmt(d.gps_altitude.min,2)}</td><td>${fmt(d.gps_altitude.avg,2)}</td><td>${fmt(d.gps_altitude.max,2)}</td></tr>
+      </table>
+      <div style="margin-top:.6rem;display:flex;align-items:center;gap:.5rem;font-size:.82rem">
+        <span style="color:var(--gray)">Plūdu risks:</span>
+        <span class="badge ${d.flood_risk}">${risk}</span>
+        <span style="margin-left:auto;color:#aaa">${d.count} nolasījumi</span>
+      </div>`;
+  } catch {}
+}
+
+// --- Photos ---
+async function loadPhotos() {
+  try {
+    const rows = await api("/api/photos");
+    if (!rows.length) { document.getElementById("photo-table").innerHTML = "<tr><td style='color:#aaa'>Nav foto</td></tr>"; return; }
+    document.getElementById("photo-table").innerHTML =
+      `<tr><th>Fails</th><th>Laiks</th><th>GPS</th></tr>` +
+      rows.map(r => `<tr>
+        <td>${r.filename||"—"}</td>
+        <td>${(r.timestamp||"").slice(11,19)}</td>
+        <td>${r.latitude ? Number(r.latitude).toFixed(4)+", "+Number(r.longitude).toFixed(4) : "—"}</td>
+      </tr>`).join("");
+  } catch {}
+}
+
+async function refreshAll() {
+  await Promise.all([loadLive(), loadChart(), loadStats(), loadPhotos()]);
+  document.getElementById("last-ts").textContent = "Atjaunināts: " + new Date().toLocaleTimeString("lv-LV");
+}
+
+refreshAll();
+setInterval(refreshAll, 60000);
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "Dārza monitors",
+  "short_name": "Dārzs",
+  "description": "Kazas sēklis, Lucavsala — sensoru monitorings",
+  "start_url": "/Garden-/",
+  "display": "standalone",
+  "background_color": "#f1f8f1",
+  "theme_color": "#2d7a3a",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
