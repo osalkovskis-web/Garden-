@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # Watch DCIM for new photos, extract metadata, append to foto_log.csv
 
-WATCH_DIR="$HOME/storage/DCIM"
+WATCH_DIR="$HOME/storage/dcim/Camera"
 LOG_DIR="$HOME/storage/downloads"
 CSV="$LOG_DIR/foto_log.csv"
 BOM=$'\xEF\xBB\xBF'
