@@ -62,8 +62,8 @@ check_pkg jq
 
 echo ""
 echo "--- Python bibliotēkas ---"
-check_py_pkg pandas
-check_py_pkg matplotlib
+check_py_pkg flask
+# pandas/matplotlib not needed — scripts use built-in csv module
 
 echo ""
 echo "--- Termux sensori ---"
