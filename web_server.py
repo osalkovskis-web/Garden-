@@ -6,9 +6,75 @@ import os, csv, json, subprocess, threading, time
 from datetime import datetime
 from flask import Flask, jsonify, Response
 
+try:
+    import paho.mqtt.client as mqtt_client
+    MQTT_AVAILABLE = True
+except ImportError:
+    MQTT_AVAILABLE = False
+
 app = Flask(__name__)
 LOG_DIR = os.path.expanduser("~/storage/downloads")
 P0 = 1013.25
+
+# ── MQTT konfigurācija ────────────────────────────────────────────────────────
+MQTT_HOST    = os.environ.get("MQTT_HOST", "YOUR-CLUSTER.s2.eu.hivemq.cloud")
+MQTT_PORT    = int(os.environ.get("MQTT_PORT", "8883"))
+MQTT_USER    = os.environ.get("MQTT_USER", "garden_gw")
+MQTT_PASS    = os.environ.get("MQTT_PASS", "CHANGE_ME")
+MQTT_USE_TLS = os.environ.get("MQTT_TLS", "1") == "1"
+
+# In-memory sensors cache — atjauninās katru reizi kad ierāda ziņojums
+_moisture_cache = {}   # {"g01": {"moisture_pct": 65, "battery_mv": 3820, ...}}
+_mqtt_connected = False
+
+def _on_mqtt_message(client, userdata, msg):
+    try:
+        payload = json.loads(msg.payload.decode())
+        node = payload.get("node")
+        if node:
+            payload["_ts"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+            payload["_topic"] = msg.topic
+            _moisture_cache[node] = payload
+    except Exception:
+        pass
+
+def _mqtt_thread():
+    global _mqtt_connected
+    if not MQTT_AVAILABLE:
+        return
+    client = mqtt_client.Client(client_id="garden_webserver", protocol=mqtt_client.MQTTv311)
+    if MQTT_USE_TLS:
+        client.tls_set()
+    client.username_pw_set(MQTT_USER, MQTT_PASS)
+    client.on_message = _on_mqtt_message
+
+    def on_connect(c, userdata, flags, rc):
+        global _mqtt_connected
+        if rc == 0:
+            _mqtt_connected = True
+            c.subscribe("garden/sensors/+/state")
+            c.subscribe("apartment/sensors/+/state")
+        else:
+            _mqtt_connected = False
+
+    def on_disconnect(c, userdata, rc):
+        global _mqtt_connected
+        _mqtt_connected = False
+
+    client.on_connect    = on_connect
+    client.on_disconnect = on_disconnect
+
+    while True:
+        try:
+            client.connect(MQTT_HOST, MQTT_PORT, keepalive=60)
+            client.loop_forever()
+        except Exception:
+            _mqtt_connected = False
+            time.sleep(30)
+
+if MQTT_AVAILABLE:
+    t = threading.Thread(target=_mqtt_thread, daemon=True)
+    t.start()
 
 # --- Helpers ---
 
@@ -124,6 +190,13 @@ def api_chart():
             pressures.append(p)
             baro_alts.append(baro_alt(p))
     return jsonify({"labels": labels, "pressure": pressures, "baro_altitude": baro_alts})
+
+@app.route("/api/moisture")
+def api_moisture():
+    return jsonify({
+        "connected": _mqtt_connected,
+        "sensors": list(_moisture_cache.values()),
+    })
 
 @app.route("/api/photos")
 def api_photos():

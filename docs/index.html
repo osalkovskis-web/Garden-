@@ -101,6 +101,13 @@
 </div>
 
 <div class="section" style="margin-top:.5rem">
+  <h2>💧 Augsnes mitrums</h2>
+  <div class="chart-box" id="moisture-box">
+    <div style="color:#aaa;font-size:.85rem">Gaida datus no sensoriem...</div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:.5rem">
   <h2>📸 Pēdējie foto</h2>
   <div class="photos"><table id="photo-table"><tr><td style="color:#aaa">—</td></tr></table></div>
 </div>
@@ -258,8 +265,74 @@ async function loadPhotos() {
   } catch {}
 }
 
+// --- Moisture ---
+function moistureColor(pct) {
+  if (pct === null || pct === undefined) return "#aaa";
+  if (pct < 25) return "#e53935";
+  if (pct < 45) return "#fb8c00";
+  if (pct < 70) return "#43a047";
+  return "#1e88e5";
+}
+
+function moistureLabel(pct) {
+  if (pct === null || pct === undefined) return "—";
+  if (pct < 25) return "Sauss";
+  if (pct < 45) return "Vidēji sauss";
+  if (pct < 70) return "Labi";
+  return "Mitrs";
+}
+
+async function loadMoisture() {
+  try {
+    const d = await api("/api/moisture");
+    const box = document.getElementById("moisture-box");
+    if (!d.sensors || !d.sensors.length) {
+      box.innerHTML = `<div style="color:#aaa;font-size:.85rem">
+        ${d.connected ? "Sensori pievienoti, gaida datus..." : "MQTT nav savienots — sensoru dati nav pieejami."}
+      </div>`;
+      return;
+    }
+    const dot = d.connected
+      ? `<span style="color:#66bb6a;font-size:.75rem">● MQTT savienots</span>`
+      : `<span style="color:#ef5350;font-size:.75rem">● MQTT nav savienots</span>`;
+    const cards = d.sensors.map(s => {
+      const pct = s.moisture_pct ?? null;
+      const col = moistureColor(pct);
+      const lbl = moistureLabel(pct);
+      const batt = s.battery_mv ? (s.battery_mv / 1000).toFixed(2) + "V" : "—";
+      const temp = s.temp_c !== undefined ? s.temp_c + "°C" : "—";
+      const loc  = s._topic && s._topic.includes("apartment") ? "Dzīvoklis" : "Dārzs";
+      const ts   = (s._ts || "").slice(11, 16) || "—";
+      return `<div style="
+        background:#f9f9f9;border-radius:10px;padding:.7rem .85rem;
+        border-left:4px solid ${col};margin-bottom:.5rem">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:.7rem;color:#888;text-transform:uppercase;letter-spacing:.05em">${loc} · ${s.node || "?"}</div>
+            <div style="font-size:1.4rem;font-weight:700;color:${col};margin:.1rem 0">
+              ${pct !== null ? pct + "%" : "—"}
+            </div>
+            <div style="font-size:.75rem;color:#777">${lbl}</div>
+          </div>
+          <div style="text-align:right;font-size:.75rem;color:#999;line-height:1.6">
+            ${s.plant ? `<div>${s.plant}</div>` : ""}
+            <div>🌡 ${temp}</div>
+            <div>🔋 ${batt}</div>
+            <div>${ts}</div>
+          </div>
+        </div>
+        <div style="margin-top:.4rem;background:#e0e0e0;border-radius:99px;height:6px;overflow:hidden">
+          <div style="width:${pct ?? 0}%;height:100%;background:${col};border-radius:99px;transition:width .5s"></div>
+        </div>
+      </div>`;
+    }).join("");
+    box.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem">
+      <span style="font-size:.78rem;color:#555">${d.sensors.length} sensors/-i</span>${dot}</div>` + cards;
+  } catch {}
+}
+
 async function refreshAll() {
-  await Promise.all([loadLive(), loadChart(), loadStats(), loadPhotos()]);
+  await Promise.all([loadLive(), loadChart(), loadStats(), loadMoisture(), loadPhotos()]);
   document.getElementById("last-ts").textContent = "Atjaunināts: " + new Date().toLocaleTimeString("lv-LV");
 }
 

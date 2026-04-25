@@ -1,0 +1,133 @@
+# ESPHome konfigurācija — dzīvokļa mitruma sensors
+# Uzlikt uz ESP32, savienojas ar WiFi un HA tieši caur MQTT
+#
+# Pievienojumi:
+#   GPIO32 → IRLZ44N gate (sensora barošana)
+#   GPIO34 → Kapacitīvā sensora AOUT
+#   GPIO25 → DS18B20 data (ar 4.7k pull-up uz 3.3V)
+#   USB 5V → barošana (nav baterija)
+#
+# Instalācija:
+#   pip install esphome
+#   esphome run apartment_sensor.yaml  ← pirmā reize (USB kabelis)
+#   esphome run apartment_sensor.yaml  ← turpmāk OTA
+
+substitutions:
+  node_name: "a01"           # mainīt katram sensoram: a01, a02, ...
+  plant_name: "Fikus"        # augs šī sensora atrašanās vietā
+  mqtt_broker: "YOUR-CLUSTER.s2.eu.hivemq.cloud"
+  mqtt_user: "garden_gw"
+  mqtt_pass: "CHANGE_ME"
+
+esphome:
+  name: apt-sensor-${node_name}
+  friendly_name: "Dzīvoklis ${node_name} (${plant_name})"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# WiFi — savienojas ar mājas tīklu
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Sensor-${node_name}-Fallback"
+    password: "setup1234"
+
+captive_portal:
+
+# OTA atjauninājumi
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# Logging (USB seriālais)
+logger:
+  level: INFO
+
+# MQTT savienojums
+mqtt:
+  broker: ${mqtt_broker}
+  port: 8883
+  username: ${mqtt_user}
+  password: ${mqtt_pass}
+  client_id: apt_sensor_${node_name}
+  discovery: true
+  discovery_prefix: homeassistant
+  topic_prefix: apartment/sensors/${node_name}
+
+# Sensora barošana caur MOSFET
+output:
+  - platform: gpio
+    pin: GPIO32
+    id: sensor_power
+
+# Intervāls: iemēra un publicē
+interval:
+  - interval: 15min
+    then:
+      - output.turn_on: sensor_power
+      - delay: 200ms
+      - component.update: moisture_sensor
+      - component.update: temperature_sensor
+      - delay: 100ms
+      - output.turn_off: sensor_power
+
+# Sensori
+sensor:
+  - platform: adc
+    pin: GPIO34
+    id: moisture_sensor
+    name: "${plant_name} mitrums (raw)"
+    attenuation: 11dB
+    update_interval: never
+    filters:
+      - median:
+          window_size: 7
+          send_every: 7
+          send_first_at: 7
+      - lambda: |-
+          // Kalibrācija: 3200 = sauss, 1200 = mitrs ūdenī
+          // Mainīt pēc kalibrēšanas!
+          const float DRY = 3200.0f;
+          const float WET = 1200.0f;
+          if (x >= DRY) return 0.0f;
+          if (x <= WET) return 100.0f;
+          return (DRY - x) / (DRY - WET) * 100.0f;
+      - clamp:
+          min_value: 0
+          max_value: 100
+    unit_of_measurement: "%"
+    device_class: moisture
+    state_class: measurement
+    icon: mdi:water-percent
+    on_value:
+      then:
+        - mqtt.publish:
+            topic: apartment/sensors/${node_name}/state
+            payload: !lambda |-
+              char buf[128];
+              snprintf(buf, sizeof(buf),
+                "{\"node\":\"${node_name}\",\"moisture_pct\":%.0f,\"plant\":\"${plant_name}\"}",
+                x);
+              return std::string(buf);
+
+  - platform: dallas_temp
+    id: temperature_sensor
+    name: "${plant_name} temperatūra"
+    update_interval: never
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+
+  - platform: wifi_signal
+    name: "WiFi RSSI ${node_name}"
+    update_interval: 60min
+
+# Statusa LED (iebūvēts uz ESP32 DevKit)
+status_led:
+  pin:
+    number: GPIO2
+    inverted: false

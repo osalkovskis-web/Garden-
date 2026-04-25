@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# PlatformIO
+iot/*/.pio/
+iot/*/build/
+
+# ESPHome secrets
+iot/apartment_node/secrets.yaml
+
+# Lokālie dati
+*.csv
+*.json
+!docs/manifest.json
