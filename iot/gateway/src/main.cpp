@@ -3,7 +3,7 @@
 #include <WiFi.h>
 #include <ArduinoJson.h>
 
-#define TINY_GSM_MODEM_SIM7000
+#define TINY_GSM_MODEM_SIM7080
 #include <TinyGsmClient.h>
 #include <PubSubClient.h>
 
@@ -18,7 +18,7 @@ const char SIM_PASS[] = "";
 const char MQTT_HOST[]  = "YOUR-CLUSTER.s2.eu.hivemq.cloud";
 const char MQTT_USER[]  = "garden_gw";
 const char MQTT_PASS[]  = "CHANGE_ME";
-const int  MQTT_PORT    = 8883;
+const int  MQTT_PORT    = 1883;  // 8883=TLS (nākotnē), 1883=bez TLS testēšanai
 const char MQTT_CLIENT[] = "garden_gateway_01";
 
 // MQTT tēmas
@@ -26,14 +26,15 @@ const char TOPIC_STATUS[]    = "garden/gateway/status";
 const char TOPIC_IRRIGATE[]  = "garden/irrigation/command";
 const char TOPIC_SENSORS[]   = "garden/sensors/";   // + node_id + "/state"
 
-// T-SIM7000G sērijas un barošanas pini
-constexpr int SIM_TX  = 27;
-constexpr int SIM_RX  = 26;
-constexpr int SIM_PWR = 4;
+// T-SIM7080G-S3 sērijas un barošanas pini (LilyGO official pinout)
+constexpr int SIM_TX  = 11;  // ESP TX → Modem RX
+constexpr int SIM_RX  = 10;  // ESP RX ← Modem TX
+constexpr int SIM_PWR = 18;  // Modem PWRKEY
+constexpr int SIM_RST = 17;  // Modem RESET
 
 // GPIO
-constexpr int PIN_RELAY = 12;
-constexpr int PIN_LED   = 13;
+constexpr int PIN_RELAY = 38;
+constexpr int PIN_LED   = 12;
 
 // Intervāli
 constexpr uint32_t HEARTBEAT_MS  = 5UL * 60 * 1000;  // 5 min
@@ -42,7 +43,9 @@ constexpr uint32_t MQTT_RETRY_MS = 30 * 1000;         // 30 s
 // ── Globālie ─────────────────────────────────────────────────────────────────
 HardwareSerial simSerial(1);
 TinyGsm        modem(simSerial);
-TinyGsmClientSecure gsmClient(modem);
+// SIM7080G neatbalsta TLS uz TinyGSM klientā — izmanto port 1883 testēšanai,
+// vai HiveMQ MQTT-over-TLS ar AT+CSSLCFG komandām (advanced setup).
+TinyGsmClient  gsmClient(modem);
 PubSubClient   mqtt(gsmClient);
 
 static uint32_t lastHeartbeat  = 0;
@@ -61,11 +64,16 @@ struct __attribute__((packed)) SensorPayload {
 
 // ── SIM7000G ──────────────────────────────────────────────────────────────────
 void simPowerOn() {
+    pinMode(SIM_RST, OUTPUT);
+    digitalWrite(SIM_RST, LOW);
+    delay(100);
+    digitalWrite(SIM_RST, HIGH);
+
     pinMode(SIM_PWR, OUTPUT);
     digitalWrite(SIM_PWR, HIGH);
     delay(1000);
     digitalWrite(SIM_PWR, LOW);
-    delay(2000);
+    delay(3000);
 }
 
 bool modemInit() {

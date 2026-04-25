@@ -1,0 +1,112 @@
+# Home Assistant automātika — dārza laistīšana pēc mitruma sensoriem
+#
+# Kopēt uz: /config/automations.yaml (vai ielīmēt HA UI → Automations → Edit as YAML)
+#
+# Priekšnosacījumi:
+#   1. HA → Settings → Integrations → MQTT → konfigurēts ar HiveMQ brokeri
+#   2. Vārteja publicē garden/sensors/+/state ar JSON {"node":"g01","moisture_pct":35,...}
+#   3. HA MQTT sensori izveidoti ar auto-discovery (vārteja publicē homeassistant/sensor/...)
+
+# ── 1. MQTT sensoru definīcijas (configuration.yaml) ─────────────────────────
+# Ja auto-discovery nestrādā, pievienot manuāli configuration.yaml:
+#
+# mqtt:
+#   sensor:
+#     - name: "Dārzs G01 mitrums"
+#       state_topic: "garden/sensors/g01/state"
+#       value_template: "{{ value_json.moisture_pct }}"
+#       unit_of_measurement: "%"
+#       device_class: moisture
+#       unique_id: garden_g01_moisture
+#
+#     - name: "Dārzs G01 baterija"
+#       state_topic: "garden/sensors/g01/state"
+#       value_template: "{{ (value_json.battery_mv | int / 1000) | round(2) }}"
+#       unit_of_measurement: "V"
+#       device_class: voltage
+#       unique_id: garden_g01_battery
+
+# ── 2. Laistīšanas automātika ─────────────────────────────────────────────────
+
+automation:
+  - id: garden_irrigation_low_moisture
+    alias: "Dārzs — laistīšana zema mitruma gadījumā"
+    description: >
+      Ja jebkurš dārza sensors ziņo mitrumu < 35% un laiks ir 08:00-10:00,
+      ieslēdz laistīšanu uz 3 minūtēm.
+    mode: single
+    max_exceeded: silent
+
+    trigger:
+      - platform: mqtt
+        topic: "garden/sensors/+/state"
+        value_template: "{{ value_json.moisture_pct }}"
+        id: mqtt_moisture
+
+    condition:
+      - condition: template
+        value_template: >
+          {{ trigger.payload_json.moisture_pct | int < 35 }}
+      - condition: time
+        after: "08:00:00"
+        before: "10:00:00"
+      # Nav lietus (barometrs nav strauji krities pēdējā stundā)
+      - condition: template
+        value_template: >
+          {{ states('sensor.darzs_spiediens') | float(1013) > 1005 }}
+
+    action:
+      - service: mqtt.publish
+        data:
+          topic: "garden/irrigation/command"
+          payload: >
+            {"action":"on","duration_sec":180,"triggered_by":"{{ trigger.payload_json.node }}"}
+          qos: 1
+
+      - service: notify.mobile_app
+        data:
+          title: "🌱 Dārzs laistās"
+          message: >
+            Sensors {{ trigger.payload_json.node }} ziņo
+            {{ trigger.payload_json.moisture_pct }}% mitrumu.
+            Laistīšana ieslēgta uz 3 min.
+
+  - id: garden_irrigation_stop
+    alias: "Dārzs — laistīšanas apstiprinājums"
+    description: "Paziņojums kad laistīšana pabeigta"
+    mode: single
+
+    trigger:
+      - platform: mqtt
+        topic: "garden/irrigation/status"
+        payload: '{"status":"done"}'
+
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "✅ Laistīšana pabeigta"
+          message: "Dārza laistīšana veiksmīgi pabeigta."
+
+  - id: garden_battery_low
+    alias: "Dārzs — zema baterija sensorā"
+    description: "Brīdinājums ja sensora baterija < 3.5V"
+    mode: parallel
+
+    trigger:
+      - platform: mqtt
+        topic: "garden/sensors/+/state"
+        id: mqtt_battery
+
+    condition:
+      - condition: template
+        value_template: >
+          {{ trigger.payload_json.battery_mv | int < 3500 }}
+
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🔋 Sensors — zema baterija"
+          message: >
+            Sensors {{ trigger.payload_json.node }}:
+            {{ (trigger.payload_json.battery_mv | int / 1000) | round(2) }}V.
+            Nomainiet bateriju!

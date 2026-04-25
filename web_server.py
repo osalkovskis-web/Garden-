@@ -76,6 +76,24 @@ if MQTT_AVAILABLE:
     t = threading.Thread(target=_mqtt_thread, daemon=True)
     t.start()
 
+_MOCK_SENSORS = [
+    {"node": "g01", "moisture_pct": 22, "moisture_raw": 2980, "battery_mv": 3820,
+     "temp_c": 14.5, "rssi": -71, "_topic": "garden/sensors/g01/state",
+     "_ts": "2025-04-25T08:00:00Z"},
+    {"node": "g02", "moisture_pct": 61, "moisture_raw": 2010, "battery_mv": 3750,
+     "temp_c": 13.8, "rssi": -68, "_topic": "garden/sensors/g02/state",
+     "_ts": "2025-04-25T08:01:00Z"},
+    {"node": "g03", "moisture_pct": 38, "moisture_raw": 2450, "battery_mv": 3900,
+     "temp_c": 15.1, "rssi": -74, "_topic": "garden/sensors/g03/state",
+     "_ts": "2025-04-25T08:02:00Z"},
+    {"node": "a01", "moisture_pct": 45, "moisture_raw": 2300, "battery_mv": None,
+     "temp_c": 21.0, "plant": "Fikus", "_topic": "apartment/sensors/a01/state",
+     "_ts": "2025-04-25T08:05:00Z"},
+    {"node": "a02", "moisture_pct": 18, "moisture_raw": 3050, "battery_mv": None,
+     "temp_c": 20.5, "plant": "Sukulents", "_topic": "apartment/sensors/a02/state",
+     "_ts": "2025-04-25T08:06:00Z"},
+]
+
 # --- Helpers ---
 
 def today_csv():
@@ -193,6 +211,9 @@ def api_chart():
 
 @app.route("/api/moisture")
 def api_moisture():
+    from flask import request as flask_request
+    if flask_request.args.get("mock") == "1":
+        return jsonify({"connected": True, "sensors": _MOCK_SENSORS})
     return jsonify({
         "connected": _mqtt_connected,
         "sensors": list(_moisture_cache.values()),

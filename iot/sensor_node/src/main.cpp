@@ -128,46 +128,119 @@ bool espNowSend(const SensorPayload& pld) {
     return ack_received;
 }
 
-// ── Setup ─────────────────────────────────────────────────────────────────────
-void setup() {
-    Serial.begin(115200);
-    delay(100);
+// ── Kalibrācijas mode ─────────────────────────────────────────────────────────
+// Aktivizējas ja 2 sekunžu laikā pēc boot tiek saņemts seriālais signāls.
+// calibrate.py savienojas ar šo protokolu.
 
+void saveCalib(uint16_t dry, uint16_t wet) {
+    EEPROM.begin(16);
+    uint32_t magic = MAGIC;
+    EEPROM.put(EE_MAGIC, magic);
+    EEPROM.put(EE_DRY,   dry);
+    EEPROM.put(EE_WET,   wet);
+    EEPROM.commit();
+}
+
+void runCalibrationMode() {
+    Serial.println("\n[CALIB] Kalibrācijas mode aktīvs. Gaida komandas...");
+    Serial.println("[CALIB] Komandas: CALIB_READ | CALIB_SAVE:dry:wet | CALIB_STATUS | CALIB_EXIT");
+
+    pinMode(PIN_SENSOR_PWR, OUTPUT);
+    analogSetAttenuation(ADC_11db);
+    analogSetWidth(12);
+
+    String buf;
+    buf.reserve(32);
+
+    while (true) {
+        while (Serial.available()) {
+            char c = Serial.read();
+            if (c == '\n' || c == '\r') {
+                buf.trim();
+                if (buf.length() == 0) { buf = ""; continue; }
+
+                if (buf == "CALIB_READ") {
+                    // Ieslēdz sensoru, streamo 20 ADC vērtības
+                    digitalWrite(PIN_SENSOR_PWR, HIGH);
+                    delay(SENSOR_WARMUP_MS);
+                    for (int i = 0; i < 20; i++) {
+                        uint16_t adc = analogRead(PIN_MOISTURE);
+                        Serial.printf("ADC:%d\n", adc);
+                        delay(80);
+                    }
+                    digitalWrite(PIN_SENSOR_PWR, LOW);
+
+                } else if (buf.startsWith("CALIB_SAVE:")) {
+                    // Formāts: CALIB_SAVE:3200:1200
+                    int colon1 = buf.indexOf(':', 11);
+                    if (colon1 < 0) { Serial.println("ERR:bad format"); buf = ""; continue; }
+                    uint16_t dry = (uint16_t)buf.substring(11, colon1).toInt();
+                    uint16_t wet = (uint16_t)buf.substring(colon1 + 1).toInt();
+                    if (dry <= wet) { Serial.println("ERR:dry must be > wet"); buf = ""; continue; }
+                    saveCalib(dry, wet);
+                    Serial.printf("CALIB_OK dry=%d wet=%d\n", dry, wet);
+
+                } else if (buf == "CALIB_STATUS") {
+                    Calib cal = loadCalib();
+                    if (cal.valid) {
+                        Serial.printf("CALIB_STATUS:dry=%d,wet=%d,valid=1\n", cal.dry, cal.wet);
+                    } else {
+                        Serial.println("CALIB_STATUS:valid=0,defaults=3200:1200");
+                    }
+                    // Arī nolasa pašreizējo ADC
+                    digitalWrite(PIN_SENSOR_PWR, HIGH);
+                    delay(SENSOR_WARMUP_MS);
+                    uint16_t raw = readADCmedian(PIN_MOISTURE);
+                    uint8_t  pct = rawToPercent(raw, cal);
+                    uint16_t batt = readBattMv();
+                    digitalWrite(PIN_SENSOR_PWR, LOW);
+                    Serial.printf("CALIB_STATUS:current_adc=%d,pct=%d,batt_mv=%d\n", raw, pct, batt);
+
+                } else if (buf == "CALIB_EXIT") {
+                    Serial.println("[CALIB] Iziet uz normālo mode. Restartē...");
+                    Serial.flush();
+                    delay(200);
+                    ESP.restart();
+
+                } else {
+                    Serial.printf("ERR:unknown command '%s'\n", buf.c_str());
+                }
+                buf = "";
+            } else {
+                buf += c;
+            }
+        }
+        delay(10);
+    }
+}
+
+// ── Normālais mērīšanas cikls ─────────────────────────────────────────────────
+void runNormalMode() {
     Serial.printf("\n[%s] Wake — ", NODE_ID);
 
-    // Ieslēdz sensoru caur MOSFET
     pinMode(PIN_SENSOR_PWR, OUTPUT);
     digitalWrite(PIN_SENSOR_PWR, HIGH);
     delay(SENSOR_WARMUP_MS);
 
-    // ADC konfigurācija
     analogSetAttenuation(ADC_11db);
     analogSetWidth(12);
 
-    // Kalibrācija
     Calib cal = loadCalib();
-    if (!cal.valid) Serial.print("(nav kalibrācijas, default vērtības) ");
+    if (!cal.valid) Serial.print("(nav kalibrācijas) ");
 
-    // Mitrums
-    uint16_t raw = readADCmedian(PIN_MOISTURE);
-    uint8_t  pct = rawToPercent(raw, cal);
-    Serial.printf("raw=%d pct=%d%%", raw, pct);
-
-    // Baterija
+    uint16_t raw     = readADCmedian(PIN_MOISTURE);
+    uint8_t  pct     = rawToPercent(raw, cal);
     uint16_t batt_mv = readBattMv();
-    Serial.printf(" batt=%dmV", batt_mv);
+    Serial.printf("raw=%d pct=%d%% batt=%dmV", raw, pct, batt_mv);
 
-    // Temperatūra
     ds18b20.begin();
     ds18b20.requestTemperatures();
-    float temp = ds18b20.getTempCByIndex(0);
+    float   temp   = ds18b20.getTempCByIndex(0);
     int16_t temp10 = (temp > -100.0f) ? (int16_t)(temp * 10) : INT16_MIN;
     Serial.printf(" temp=%.1f°C", temp);
 
-    // Izslēdz sensoru (taupa bateriju)
     digitalWrite(PIN_SENSOR_PWR, LOW);
 
-    // Sagatavo payload
     SensorPayload pld{};
     strncpy(pld.node, NODE_ID, sizeof(pld.node) - 1);
     pld.moisture_raw = (int16_t)raw;
@@ -176,17 +249,31 @@ void setup() {
     pld.temp_c10     = temp10;
     pld.rssi         = (int8_t)WiFi.RSSI();
 
-    // Sūta
     bool ok = espNowSend(pld);
     Serial.printf(" → ESP-NOW %s\n", ok ? "OK" : "FAIL");
 
     WiFi.mode(WIFI_OFF);
-
     Serial.printf("Deep sleep %d min...\n", SLEEP_MIN);
     Serial.flush();
 
     esp_sleep_enable_timer_wakeup((uint64_t)SLEEP_MIN * 60 * 1000000ULL);
     esp_deep_sleep_start();
+}
+
+// ── Setup ─────────────────────────────────────────────────────────────────────
+void setup() {
+    Serial.begin(115200);
+    delay(100);
+
+    // Kalibrācijas mode detektors: ja 2s laikā USB sūta datus → calib mode
+    bool calibMode = false;
+    uint32_t t0 = millis();
+    while (millis() - t0 < 2000) {
+        if (Serial.available()) { calibMode = true; break; }
+    }
+
+    if (calibMode) runCalibrationMode();
+    else           runNormalMode();
 }
 
 void loop() {}

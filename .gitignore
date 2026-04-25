@@ -7,7 +7,9 @@ __pycache__/
 iot/*/.pio/
 iot/*/build/
 
-# ESPHome secrets
+
+# Noslēpumi
+.env
 iot/apartment_node/secrets.yaml
 
 # Lokālie dati
