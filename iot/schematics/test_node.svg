@@ -1,0 +1,265 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 740" width="980" height="740">
+<defs>
+  <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
+    <circle cx="10" cy="10" r="0.8" fill="#ddd"/>
+  </pattern>
+  <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+    <path d="M0,0 L6,3 L0,6 Z" fill="#555"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect width="980" height="740" fill="#f8f9fa" rx="12"/>
+<rect width="980" height="740" fill="url(#dots)"/>
+
+<!-- Title bar -->
+<rect x="0" y="0" width="980" height="46" fill="#1b5e20" rx="12"/>
+<rect x="0" y="30" width="980" height="16" fill="#1b5e20"/>
+<text x="490" y="29" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" font-weight="bold" fill="white">TESTS — Sensoru mezgls prototips  (breadboard + jumper vadi)</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- WIRES — drawn first so components appear on top                       -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- Battery B+ → TP4056 B+  (amber) -->
+<polyline points="100,200 100,290" fill="none" stroke="#f57f17" stroke-width="2.5"/>
+<!-- Battery B- → TP4056 B-  (dark) -->
+<polyline points="145,200 145,290" fill="none" stroke="#37474f" stroke-width="2.5"/>
+
+<!-- TP4056 OUT+ → ESP32 VIN  (red, with voltage-divider branch junction) -->
+<polyline points="185,310 199,310 225,310 225,150 265,150" fill="none" stroke="#e53935" stroke-width="2.5"/>
+<!-- Voltage divider branch from junction (199,310) down to R1 top -->
+<polyline points="199,310 199,445" fill="none" stroke="#e53935" stroke-width="2.5"/>
+<!-- Junction dot -->
+<circle cx="199" cy="310" r="4" fill="#e53935"/>
+
+<!-- TP4056 OUT- → GND rail  (black) -->
+<polyline points="185,345 232,345 232,650" fill="none" stroke="#212121" stroke-width="2.5"/>
+
+<!-- ESP32 GND → GND rail  (black) -->
+<polyline points="265,200 244,200 244,650" fill="none" stroke="#212121" stroke-width="2.5"/>
+
+<!-- R1 bottom → R2 top  (midpoint) + → GPIO35 (purple/orange) -->
+<polyline points="199,493 199,505" fill="none" stroke="#e53935" stroke-width="2.5"/>
+<!-- midpoint → GPIO35 -->
+<polyline points="199,493 265,493" fill="none" stroke="#7b1fa2" stroke-width="2.5" stroke-dasharray="5,2"/>
+<circle cx="199" cy="493" r="4" fill="#7b1fa2"/>
+
+<!-- R2 bottom → GND rail -->
+<polyline points="199,553 199,650" fill="none" stroke="#212121" stroke-width="2.5"/>
+
+<!-- 3V3 bus: ESP32 right (3V3 pin at 425,170) → up → horizontal bus at y=100 -->
+<polyline points="425,170 425,100 840,100" fill="none" stroke="#ef6c00" stroke-width="2.5"/>
+<!-- 3V3 drop → Moisture Sensor VCC -->
+<polyline points="655,100 655,185" fill="none" stroke="#ef6c00" stroke-width="2.5"/>
+<!-- 3V3 drop → DS18B20 VCC (right edge routing) -->
+<polyline points="815,100 815,415 655,415" fill="none" stroke="#ef6c00" stroke-width="2.5"/>
+<!-- 3V3 drop → R3 pull-up top (between MOSFET and moisture sensor) -->
+<polyline points="470,100 470,400 546,400" fill="none" stroke="#ef6c00" stroke-width="2.5"/>
+
+<!-- GPIO32 → MOSFET Gate  (blue digital) -->
+<polyline points="425,265 500,265" fill="none" stroke="#1565c0" stroke-width="2.5"/>
+
+<!-- Moisture AOUT → GPIO34  (purple ADC) -->
+<polyline points="655,258 638,258 638,345 425,345" fill="none" stroke="#7b1fa2" stroke-width="2.5" stroke-dasharray="6,2"/>
+
+<!-- GPIO25 → DS18B20 DATA via R3  (green 1-wire) -->
+<polyline points="425,445 546,445 655,445" fill="none" stroke="#2e7d32" stroke-width="2.5"/>
+<circle cx="546" cy="445" r="4" fill="#2e7d32"/>
+
+<!-- Moisture GND → MOSFET Drain  (switched GND, dark red) -->
+<polyline points="655,218 547,218 547,215" fill="none" stroke="#b71c1c" stroke-width="2" stroke-dasharray="4,2"/>
+
+<!-- MOSFET Source → GND rail -->
+<polyline points="547,335 547,650" fill="none" stroke="#212121" stroke-width="2.5"/>
+
+<!-- DS18B20 GND → GND rail -->
+<polyline points="655,470 655,650" fill="none" stroke="#212121" stroke-width="2.5"/>
+
+<!-- GND rail (thick horizontal) -->
+<line x1="195" y1="650" x2="840" y2="650" stroke="#212121" stroke-width="3.5"/>
+<!-- GND label -->
+<text x="490" y="668" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#212121">⏚  GND</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- COMPONENTS                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- ── 18650 BATTERY ─────────────────────────────────────────────────── -->
+<rect x="55" y="135" width="130" height="65" rx="8" fill="#fffde7" stroke="#f57f17" stroke-width="2.5"/>
+<text x="120" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="bold" fill="#e65100">18650</text>
+<text x="120" y="173" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#bf360c">Li-ion  3.7 – 4.2 V</text>
+<!-- Terminal marks -->
+<text x="92" y="194" text-anchor="middle" font-family="monospace" font-size="10" fill="#e53935">B+</text>
+<text x="148" y="194" text-anchor="middle" font-family="monospace" font-size="10" fill="#333">B−</text>
+<!-- terminal dots -->
+<circle cx="100" cy="200" r="3.5" fill="#f57f17"/>
+<circle cx="145" cy="200" r="3.5" fill="#37474f"/>
+
+<!-- ── TP4056 CHARGER ──────────────────────────────────────────────────── -->
+<rect x="55" y="290" width="130" height="85" rx="8" fill="#e3f2fd" stroke="#1565c0" stroke-width="2.5"/>
+<text x="120" y="315" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="bold" fill="#0d47a1">TP4056</text>
+<text x="120" y="331" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#1565c0">Lādētājs</text>
+<!-- B+ B- top -->
+<text x="88" y="290" text-anchor="middle" font-family="monospace" font-size="9" fill="#e53935">B+</text>
+<text x="148" y="290" text-anchor="middle" font-family="monospace" font-size="9" fill="#333">B−</text>
+<!-- OUT+/OUT- right -->
+<text x="190" y="312" text-anchor="start" font-family="monospace" font-size="9" fill="#e53935">OUT+</text>
+<text x="190" y="348" text-anchor="start" font-family="monospace" font-size="9" fill="#333">OUT−</text>
+<circle cx="185" cy="310" r="3" fill="#e53935"/>
+<circle cx="185" cy="345" r="3" fill="#37474f"/>
+<!-- USB indication -->
+<rect x="56" y="350" width="30" height="16" rx="3" fill="#bbdefb" stroke="#1565c0" stroke-width="1"/>
+<text x="71" y="362" text-anchor="middle" font-family="monospace" font-size="8" fill="#0d47a1">USB</text>
+
+<!-- ── ESP32 DevKit C ──────────────────────────────────────────────────── -->
+<rect x="265" y="85" width="160" height="550" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="3"/>
+<text x="345" y="112" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="bold" fill="#1b5e20">ESP32</text>
+<text x="345" y="130" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#388e3c">DevKit C</text>
+<!-- divider -->
+<line x1="275" y1="138" x2="415" y2="138" stroke="#a5d6a7" stroke-width="1"/>
+
+<!-- LEFT PIN LABELS (inside, right-aligned to left edge) -->
+<!-- VIN -->
+<text x="270" y="153" font-family="monospace" font-size="9" fill="#c62828" text-anchor="start">VIN</text>
+<circle cx="265" cy="150" r="3.5" fill="#e53935"/>
+<!-- GND -->
+<text x="270" y="203" font-family="monospace" font-size="9" fill="#333" text-anchor="start">GND</text>
+<circle cx="265" cy="200" r="3.5" fill="#212121"/>
+<!-- 3V3 -->
+<text x="270" y="253" font-family="monospace" font-size="9" fill="#bf360c" text-anchor="start">3V3</text>
+<circle cx="265" cy="250" r="3.5" fill="#ef6c00"/>
+<!-- GPIO35 (ADC, bat monitor) -->
+<text x="270" y="495" font-family="monospace" font-size="9" fill="#6a1b9a" text-anchor="start">GPIO35</text>
+<text x="270" y="507" font-family="monospace" font-size="9" fill="#888" text-anchor="start">(ADC–Batt)</text>
+<circle cx="265" cy="493" r="3.5" fill="#7b1fa2"/>
+
+<!-- RIGHT PIN LABELS -->
+<!-- 3V3 right -->
+<text x="420" y="173" font-family="monospace" font-size="9" fill="#bf360c" text-anchor="start">3V3</text>
+<circle cx="425" cy="170" r="3.5" fill="#ef6c00"/>
+<!-- GPIO32 (MOSFET) -->
+<text x="380" y="268" font-family="monospace" font-size="9" fill="#1565c0" text-anchor="end">GPIO32</text>
+<text x="380" y="280" font-family="monospace" font-size="9" fill="#888" text-anchor="end">(MOSFET)</text>
+<circle cx="425" cy="265" r="3.5" fill="#1565c0"/>
+<!-- GPIO34 (ADC moisture) -->
+<text x="380" y="348" font-family="monospace" font-size="9" fill="#6a1b9a" text-anchor="end">GPIO34</text>
+<text x="380" y="360" font-family="monospace" font-size="9" fill="#888" text-anchor="end">(ADC–Mitrs)</text>
+<circle cx="425" cy="345" r="3.5" fill="#7b1fa2"/>
+<!-- GPIO25 (DS18B20) -->
+<text x="380" y="448" font-family="monospace" font-size="9" fill="#2e7d32" text-anchor="end">GPIO25</text>
+<text x="380" y="460" font-family="monospace" font-size="9" fill="#888" text-anchor="end">(1-Wire)</text>
+<circle cx="425" cy="445" r="3.5" fill="#2e7d32"/>
+
+<!-- ── IRLZ44N MOSFET (N-channel, low-side) ───────────────────────────── -->
+<rect x="500" y="215" width="95" height="120" rx="7" fill="#fafafa" stroke="#424242" stroke-width="2.5"/>
+<text x="547" y="242" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="bold" fill="#212121">IRLZ44N</text>
+<text x="547" y="256" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#555">N-MOSFET</text>
+<text x="547" y="270" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#555">Low-side SW</text>
+<!-- Pins labels -->
+<text x="503" y="269" font-family="monospace" font-size="9" fill="#1565c0" text-anchor="start">G</text>
+<text x="535" y="218" font-family="monospace" font-size="9" fill="#b71c1c" text-anchor="middle">D</text>
+<text x="535" y="344" font-family="monospace" font-size="9" fill="#333" text-anchor="middle">S</text>
+<!-- pin dots -->
+<circle cx="500" cy="265" r="3.5" fill="#1565c0"/>
+<circle cx="547" cy="215" r="3.5" fill="#b71c1c"/>
+<circle cx="547" cy="335" r="3.5" fill="#212121"/>
+
+<!-- ── CAPACITIVE MOISTURE SENSOR v1.2 ────────────────────────────────── -->
+<rect x="655" y="148" width="155" height="140" rx="8" fill="#fce4ec" stroke="#c62828" stroke-width="2.5"/>
+<text x="732" y="173" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#b71c1c">Kapacitīvs</text>
+<text x="732" y="188" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#b71c1c">Sensors v1.2</text>
+<text x="732" y="204" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#c62828">(Nav rezistīvais!)</text>
+<!-- Sensor probe illustration -->
+<rect x="710" y="218" width="44" height="55" rx="3" fill="#ef9a9a" stroke="#c62828" stroke-width="1" stroke-dasharray="3,2"/>
+<text x="732" y="250" text-anchor="middle" font-family="monospace" font-size="8" fill="#b71c1c">ZONDE</text>
+<!-- Pin labels -->
+<text x="652" y="188" font-family="monospace" font-size="9" fill="#ef6c00" text-anchor="end">VCC</text>
+<text x="652" y="221" font-family="monospace" font-size="9" fill="#b71c1c" text-anchor="end">GND</text>
+<text x="652" y="261" font-family="monospace" font-size="9" fill="#7b1fa2" text-anchor="end">AOUT</text>
+<circle cx="655" cy="185" r="3.5" fill="#ef6c00"/>
+<circle cx="655" cy="218" r="3.5" fill="#b71c1c"/>
+<circle cx="655" cy="258" r="3.5" fill="#7b1fa2"/>
+
+<!-- ── DS18B20 TEMPERATURE SENSOR ─────────────────────────────────────── -->
+<rect x="655" y="390" width="145" height="100" rx="8" fill="#e8f5e9" stroke="#1b5e20" stroke-width="2.5"/>
+<text x="727" y="415" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#1b5e20">DS18B20</text>
+<text x="727" y="431" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#2e7d32">Temperatūra</text>
+<text x="727" y="446" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#388e3c">Waterproof versija</text>
+<!-- DS18B20 TO-92 shape hint -->
+<rect x="700" y="458" width="54" height="22" rx="11" fill="#a5d6a7" stroke="#1b5e20" stroke-width="1"/>
+<text x="727" y="474" text-anchor="middle" font-family="monospace" font-size="8" fill="#1b5e20">TO-92</text>
+<!-- Pin labels -->
+<text x="652" y="418" font-family="monospace" font-size="9" fill="#ef6c00" text-anchor="end">VCC</text>
+<text x="652" y="448" font-family="monospace" font-size="9" fill="#2e7d32" text-anchor="end">DATA</text>
+<text x="652" y="473" font-family="monospace" font-size="9" fill="#333" text-anchor="end">GND</text>
+<circle cx="655" cy="415" r="3.5" fill="#ef6c00"/>
+<circle cx="655" cy="445" r="3.5" fill="#2e7d32"/>
+<circle cx="655" cy="470" r="3.5" fill="#212121"/>
+
+<!-- ── VOLTAGE DIVIDER (R1, R2) ───────────────────────────────────────── -->
+<!-- R1 (100kΩ) — vertical rectangle -->
+<rect x="188" y="445" width="22" height="48" rx="3" fill="#fff8e1" stroke="#e65100" stroke-width="2"/>
+<text x="172" y="465" font-family="monospace" font-size="8" fill="#e65100" text-anchor="end">R1</text>
+<text x="172" y="476" font-family="monospace" font-size="8" fill="#e65100" text-anchor="end">100k</text>
+
+<!-- R2 (100kΩ) — vertical rectangle -->
+<rect x="188" y="505" width="22" height="48" rx="3" fill="#fff8e1" stroke="#e65100" stroke-width="2"/>
+<text x="172" y="525" font-family="monospace" font-size="8" fill="#e65100" text-anchor="end">R2</text>
+<text x="172" y="536" font-family="monospace" font-size="8" fill="#e65100" text-anchor="end">100k</text>
+
+<!-- midpoint label -->
+<text x="216" y="498" font-family="monospace" font-size="8" fill="#7b1fa2" text-anchor="start">→ GPIO35</text>
+
+<!-- ── R3 PULL-UP (4.7kΩ) for DS18B20 ────────────────────────────────── -->
+<rect x="535" y="400" width="22" height="45" rx="3" fill="#fff8e1" stroke="#e65100" stroke-width="2"/>
+<text x="533" y="388" font-family="monospace" font-size="8" fill="#e65100" text-anchor="middle">R3</text>
+<text x="533" y="397" font-family="monospace" font-size="8" fill="#e65100" text-anchor="middle">4.7k</text>
+<text x="533" y="464" font-family="monospace" font-size="8" fill="#2e7d32" text-anchor="middle">DATA</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- LABELS & ANNOTATIONS                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- VCC label on main power wire -->
+<rect x="208" y="225" width="34" height="16" rx="3" fill="#e53935"/>
+<text x="225" y="237" text-anchor="middle" font-family="monospace" font-size="9" fill="white">VCC</text>
+
+<!-- 3V3 label on bus -->
+<rect x="540" y="91" width="34" height="16" rx="3" fill="#ef6c00"/>
+<text x="557" y="103" text-anchor="middle" font-family="monospace" font-size="9" fill="white">3V3</text>
+
+<!-- MOSFET explanation box -->
+<rect x="455" y="150" width="178" height="48" rx="5" fill="#e3f2fd" stroke="#1565c0" stroke-width="1" stroke-dasharray="3,2"/>
+<text x="544" y="166" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#0d47a1">Low-side switch:</text>
+<text x="544" y="180" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#0d47a1">GPIO32=HIGH → Sensors ON</text>
+<text x="544" y="192" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#0d47a1">GPIO32=LOW  → Sensors OFF</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- LEGEND                                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<rect x="55" y="598" width="182" height="118" rx="8" fill="white" stroke="#ccc" stroke-width="1.5"/>
+<text x="146" y="617" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="bold" fill="#333">Leģenda</text>
+<line x1="68" y1="628" x2="98" y2="628" stroke="#e53935" stroke-width="2.5"/>
+<text x="104" y="632" font-family="system-ui,sans-serif" font-size="9" fill="#333">VCC (baterija ~4V)</text>
+<line x1="68" y1="644" x2="98" y2="644" stroke="#ef6c00" stroke-width="2.5"/>
+<text x="104" y="648" font-family="system-ui,sans-serif" font-size="9" fill="#333">3.3V barošana</text>
+<line x1="68" y1="660" x2="98" y2="660" stroke="#212121" stroke-width="2.5"/>
+<text x="104" y="664" font-family="system-ui,sans-serif" font-size="9" fill="#333">GND</text>
+<line x1="68" y1="676" x2="98" y2="676" stroke="#1565c0" stroke-width="2.5"/>
+<text x="104" y="680" font-family="system-ui,sans-serif" font-size="9" fill="#333">Digitāls signāls</text>
+<line x1="68" y1="692" x2="98" y2="692" stroke="#7b1fa2" stroke-width="2.5" stroke-dasharray="5,2"/>
+<text x="104" y="696" font-family="system-ui,sans-serif" font-size="9" fill="#333">ADC analogais</text>
+<line x1="68" y1="708" x2="98" y2="708" stroke="#2e7d32" stroke-width="2.5"/>
+<text x="104" y="712" font-family="system-ui,sans-serif" font-size="9" fill="#333">1-Wire dati</text>
+
+<!-- Notes -->
+<rect x="260" y="650" width="440" height="68" rx="8" fill="#fff8e1" stroke="#f57f17" stroke-width="1.5"/>
+<text x="480" y="666" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="bold" fill="#e65100">Svarīgas piezīmes</text>
+<text x="270" y="681" font-family="system-ui,sans-serif" font-size="9" fill="#5d4037">▸ GPIO34 un GPIO35 — tikai ievades pini, nav iekšēja pull-up/pull-down</text>
+<text x="270" y="695" font-family="system-ui,sans-serif" font-size="9" fill="#5d4037">▸ MOSFET kā low-side switch — sensora GND pārslēgts (ne VCC)</text>
+<text x="270" y="709" font-family="system-ui,sans-serif" font-size="9" fill="#5d4037">▸ R3 (4.7kΩ) — obligāts pull-up DS18B20 DATA līnijai uz 3.3V</text>
+
+<!-- Version / file label -->
+<text x="925" y="732" text-anchor="end" font-family="monospace" font-size="8" fill="#aaa">test_node.svg  v1.0</text>
+</svg>

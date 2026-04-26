@@ -1,0 +1,258 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 680" width="980" height="680">
+<defs>
+  <pattern id="dots3" width="20" height="20" patternUnits="userSpaceOnUse">
+    <circle cx="10" cy="10" r="0.8" fill="#ddd"/>
+  </pattern>
+  <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+    <path d="M0,1 L7,4 L0,7 Z" fill="#555"/>
+  </marker>
+  <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+    <path d="M0,1 L7,4 L0,7 Z" fill="#e53935"/>
+  </marker>
+</defs>
+
+<!-- Background -->
+<rect width="980" height="680" fill="#f8f9fa" rx="12"/>
+<rect width="980" height="680" fill="url(#dots3)"/>
+
+<!-- Title bar -->
+<rect x="0" y="0" width="980" height="46" fill="#4a148c" rx="12"/>
+<rect x="0" y="30" width="980" height="16" fill="#4a148c"/>
+<text x="490" y="29" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" font-weight="bold" fill="white">VĀRTEJA — Barošanas shēma  (Saules panelis → T-SIM7080G-S3)</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- POWER FLOW: Solar → LM2596 → DD28CRTA → T-SIM7080G-S3                 -->
+<!-- Main horizontal flow at y=200                                          -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- Solar → LM2596 wire (yellow, 12V) -->
+<polyline points="168,200 245,200" fill="none" stroke="#f9a825" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="192" y="186" width="32" height="14" rx="3" fill="#f9a825"/>
+<text x="208" y="196" text-anchor="middle" font-family="monospace" font-size="8" fill="white">12V</text>
+
+<!-- LM2596 → DD28CRTA wire (orange, 5V) -->
+<polyline points="365,200 445,200" fill="none" stroke="#ef6c00" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="388" y="186" width="28" height="14" rx="3" fill="#ef6c00"/>
+<text x="402" y="196" text-anchor="middle" font-family="monospace" font-size="8" fill="white">5V</text>
+
+<!-- DD28CRTA → T-SIM7080G-S3 wire (red, 5V regulated + UPS) -->
+<polyline points="565,200 645,200" fill="none" stroke="#e53935" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="583" y="183" width="42" height="14" rx="3" fill="#e53935"/>
+<text x="604" y="193" text-anchor="middle" font-family="monospace" font-size="8" fill="white">5V UPS</text>
+
+<!-- 18650 Battery connection to DD28CRTA (bidirectional, charge/discharge) -->
+<polyline points="505,280 505,250 505,230" fill="none" stroke="#f57f17" stroke-width="3" stroke-dasharray="5,3"/>
+<text x="515" y="270" font-family="monospace" font-size="9" fill="#e65100">↕ BAT</text>
+<text x="515" y="282" font-family="monospace" font-size="9" fill="#e65100">uzlāde /</text>
+<text x="515" y="294" font-family="monospace" font-size="9" fill="#e65100">izlāde</text>
+
+<!-- GND lines (black, bottom) -->
+<polyline points="168,225 168,390 830,390" fill="none" stroke="#212121" stroke-width="2.5"/>
+<polyline points="305,225 305,390" fill="none" stroke="#212121" stroke-width="2"/>
+<polyline points="505,390 505,370" fill="none" stroke="#212121" stroke-width="2"/>
+<polyline points="645,390 645,320" fill="none" stroke="#212121" stroke-width="2"/>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- COMPONENTS                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- ── SOLAR PANEL ─────────────────────────────────────────────────────── -->
+<rect x="48" y="140" width="120" height="120" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2.5"/>
+<text x="108" y="165" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#1b5e20">Saules</text>
+<text x="108" y="180" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#1b5e20">Panelis</text>
+<text x="108" y="196" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#388e3c">20W  12V</text>
+<!-- Solar cell grid -->
+<rect x="65" y="204" width="85" height="45" rx="3" fill="#a5d6a7" stroke="#2e7d32" stroke-width="1"/>
+<line x1="93" y1="204" x2="93" y2="249" stroke="#2e7d32" stroke-width="0.8"/>
+<line x1="121" y1="204" x2="121" y2="249" stroke="#2e7d32" stroke-width="0.8"/>
+<line x1="65" y1="219" x2="150" y2="219" stroke="#2e7d32" stroke-width="0.8"/>
+<line x1="65" y1="234" x2="150" y2="234" stroke="#2e7d32" stroke-width="0.8"/>
+<!-- Terminal labels -->
+<text x="168" y="200" text-anchor="start" font-family="monospace" font-size="9" fill="#f9a825">+ 12V</text>
+<text x="168" y="230" text-anchor="start" font-family="monospace" font-size="9" fill="#333">− GND</text>
+<circle cx="168" cy="200" r="3.5" fill="#f9a825"/>
+<circle cx="168" cy="225" r="3.5" fill="#212121"/>
+
+<!-- ── LM2596 DC-DC STEP-DOWN ────────────────────────────────────────── -->
+<rect x="245" y="148" width="120" height="105" rx="10" fill="#e8eaf6" stroke="#3949ab" stroke-width="2.5"/>
+<text x="305" y="173" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#1a237e">LM2596</text>
+<text x="305" y="188" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#283593">DC-DC Buck</text>
+<text x="305" y="204" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#283593">12V → 5V</text>
+<text x="305" y="219" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#5c6bc0">Regulēt: OUT = 5.0V</text>
+<text x="305" y="234" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#5c6bc0">(potenciometrs)</text>
+<!-- Adjustment arrow -->
+<text x="305" y="245" text-anchor="middle" font-family="monospace" font-size="9" fill="#3949ab">▼ trim-pot</text>
+<!-- IN label -->
+<text x="243" y="200" font-family="monospace" font-size="9" fill="#f9a825" text-anchor="end">IN+</text>
+<text x="243" y="225" font-family="monospace" font-size="9" fill="#333" text-anchor="end">IN−</text>
+<text x="367" y="200" font-family="monospace" font-size="9" fill="#ef6c00" text-anchor="start">OUT+</text>
+<text x="367" y="225" font-family="monospace" font-size="9" fill="#333" text-anchor="start">OUT−</text>
+<circle cx="245" cy="200" r="3" fill="#f9a825"/>
+<circle cx="245" cy="222" r="3" fill="#212121"/>
+<circle cx="365" cy="200" r="3" fill="#ef6c00"/>
+<circle cx="365" cy="222" r="3" fill="#212121"/>
+
+<!-- ── DD28CRTA UPS MODULE ─────────────────────────────────────────────── -->
+<rect x="445" y="148" width="120" height="105" rx="10" fill="#fce4ec" stroke="#880e4f" stroke-width="2.5"/>
+<text x="505" y="173" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#880e4f">DD28CRTA</text>
+<text x="505" y="188" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#ad1457">UPS Modulis</text>
+<text x="505" y="204" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#c2185b">5V in → lādē 18650</text>
+<text x="505" y="219" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#c2185b">+ 5V out simultāni</text>
+<text x="505" y="234" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#c2185b">Automāt. pārslēgšana</text>
+<text x="505" y="248" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#ad1457">mākoņainās dienās → BAT</text>
+<!-- Pins -->
+<text x="443" y="200" font-family="monospace" font-size="9" fill="#ef6c00" text-anchor="end">IN+</text>
+<text x="443" y="225" font-family="monospace" font-size="9" fill="#333" text-anchor="end">IN−</text>
+<text x="567" y="200" font-family="monospace" font-size="9" fill="#e53935" text-anchor="start">OUT+</text>
+<text x="567" y="225" font-family="monospace" font-size="9" fill="#333" text-anchor="start">OUT−</text>
+<text x="505" y="278" font-family="monospace" font-size="9" fill="#f57f17" text-anchor="middle">BAT+ / BAT−</text>
+<circle cx="445" cy="200" r="3" fill="#ef6c00"/>
+<circle cx="445" cy="222" r="3" fill="#212121"/>
+<circle cx="565" cy="200" r="3" fill="#e53935"/>
+<circle cx="565" cy="222" r="3" fill="#212121"/>
+<circle cx="505" cy="253" r="3" fill="#f57f17"/>
+
+<!-- ── 18650 BATTERIES (parallel pack, vārtejā) ──────────────────────── -->
+<rect x="448" y="305" width="116" height="65" rx="8" fill="#fffde7" stroke="#f57f17" stroke-width="2.5"/>
+<text x="506" y="328" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="bold" fill="#e65100">18650 × 2</text>
+<text x="506" y="343" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#bf360c">Paralēli (2× kapacitāte)</text>
+<text x="506" y="357" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#bf360c">NCR18650PF + LIC26HC</text>
+<circle cx="505" cy="305" r="3" fill="#f57f17"/>
+<circle cx="505" cy="370" r="3" fill="#212121"/>
+
+<!-- ── T-SIM7080G-S3 GATEWAY ────────────────────────────────────────── -->
+<rect x="645" y="100" width="195" height="260" rx="12" fill="#e8eaf6" stroke="#4a148c" stroke-width="3"/>
+<text x="742" y="128" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="bold" fill="#4a148c">T-SIM7080G-S3</text>
+<text x="742" y="145" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6a1b9a">ESP32-S3 + SIM7080G</text>
+<line x1="655" y1="152" x2="830" y2="152" stroke="#ce93d8" stroke-width="1"/>
+
+<!-- Internal components labels -->
+<rect x="658" y="160" width="80" height="36" rx="5" fill="#d1c4e9" stroke="#7b1fa2" stroke-width="1.5"/>
+<text x="698" y="174" text-anchor="middle" font-family="monospace" font-size="9" fill="#4a148c">ESP32-S3</text>
+<text x="698" y="187" text-anchor="middle" font-family="monospace" font-size="9" fill="#4a148c">240MHz</text>
+
+<rect x="748" y="160" width="80" height="36" rx="5" fill="#d1c4e9" stroke="#7b1fa2" stroke-width="1.5"/>
+<text x="788" y="174" text-anchor="middle" font-family="monospace" font-size="9" fill="#4a148c">SIM7080G</text>
+<text x="788" y="187" text-anchor="middle" font-family="monospace" font-size="9" fill="#4a148c">LTE-M/NB</text>
+
+<!-- SIM card slot -->
+<rect x="658" y="206" width="60" height="28" rx="4" fill="#fff9c4" stroke="#f57f17" stroke-width="1.5"/>
+<text x="688" y="218" text-anchor="middle" font-family="monospace" font-size="8" fill="#e65100">SIM karte</text>
+<text x="688" y="228" text-anchor="middle" font-family="monospace" font-size="8" fill="#e65100">LMT/Tele2</text>
+
+<!-- 18650 slot -->
+<rect x="728" y="206" width="60" height="28" rx="4" fill="#fffde7" stroke="#f57f17" stroke-width="1.5"/>
+<text x="758" y="218" text-anchor="middle" font-family="monospace" font-size="8" fill="#e65100">18650</text>
+<text x="758" y="228" text-anchor="middle" font-family="monospace" font-size="8" fill="#e65100">slots</text>
+
+<!-- Antennas -->
+<rect x="658" y="244" width="170" height="22" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+<text x="743" y="258" text-anchor="middle" font-family="monospace" font-size="9" fill="#1b5e20">Antenas: LTE + GPS (ārējas)</text>
+
+<!-- GPIO labels -->
+<text x="650" y="285" font-family="monospace" font-size="8" fill="#1565c0" text-anchor="end">GPIO38→Relay</text>
+<text x="650" y="300" font-family="monospace" font-size="8" fill="#2e7d32" text-anchor="end">GPIO10/11→SIM</text>
+<text x="650" y="315" font-family="monospace" font-size="8" fill="#555" text-anchor="end">GPIO12→LED</text>
+<circle cx="645" cy="283" r="3" fill="#1565c0"/>
+<circle cx="645" cy="298" r="3" fill="#2e7d32"/>
+
+<!-- 5V input label -->
+<text x="643" y="200" font-family="monospace" font-size="9" fill="#e53935" text-anchor="end">5V</text>
+<text x="643" y="225" font-family="monospace" font-size="9" fill="#333" text-anchor="end">GND</text>
+<circle cx="645" cy="200" r="3" fill="#e53935"/>
+<circle cx="645" cy="220" r="3" fill="#212121"/>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- RELAY + PUMP/VALVE (right side, below gateway)                         -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- Wire: GPIO38 → Relay -->
+<polyline points="645,283 618,283 618,455 690,455" fill="none" stroke="#1565c0" stroke-width="2.5"/>
+<text x="626" y="372" font-family="monospace" font-size="9" fill="#1565c0" text-anchor="middle" transform="rotate(90,626,372)">GPIO38</text>
+
+<!-- Relay module -->
+<rect x="690" y="415" width="115" height="80" rx="8" fill="#e3f2fd" stroke="#1565c0" stroke-width="2.5"/>
+<text x="747" y="440" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#0d47a1">Relay</text>
+<text x="747" y="455" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#1565c0">5V coil</text>
+<text x="747" y="468" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#1565c0">NO / COM / NC</text>
+<text x="693" y="440" font-family="monospace" font-size="8" fill="#1565c0">IN</text>
+<text x="808" y="445" font-family="monospace" font-size="8" fill="#555" text-anchor="start">COM</text>
+<text x="808" y="458" font-family="monospace" font-size="8" fill="#555" text-anchor="start">NO</text>
+<circle cx="690" cy="455" r="3" fill="#1565c0"/>
+<circle cx="805" cy="443" r="3" fill="#555"/>
+<circle cx="805" cy="456" r="3" fill="#555"/>
+
+<!-- Wire: Relay → Pump/Valve -->
+<polyline points="805,443 835,443 835,500 840,500" fill="none" stroke="#555" stroke-width="2"/>
+<polyline points="805,456 850,456 850,518 840,518" fill="none" stroke="#555" stroke-width="2"/>
+
+<!-- Pump / Solenoid valve -->
+<rect x="840" y="490" width="115" height="65" rx="8" fill="#fff3e0" stroke="#e65100" stroke-width="2.5"/>
+<text x="897" y="515" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="bold" fill="#bf360c">Pumpa /</text>
+<text x="897" y="530" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="bold" fill="#bf360c">Solenoid</text>
+<text x="897" y="544" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#e65100">12V DC</text>
+<circle cx="955" cy="510" r="3" fill="#e65100"/>
+<circle cx="955" cy="530" r="3" fill="#212121"/>
+
+<!-- 12V power to relay/pump (from solar directly) -->
+<polyline points="168,200 168,460 690,460 690,470" fill="none" stroke="#f9a825" stroke-width="2" stroke-dasharray="6,3"/>
+<rect x="295" y="460" width="95" height="14" rx="3" fill="#f9a825"/>
+<text x="342" y="470" text-anchor="middle" font-family="monospace" font-size="8" fill="white">12V → pumpa</text>
+
+<!-- Flyback diode note -->
+<rect x="840" y="465" width="115" height="22" rx="4" fill="#ffcdd2" stroke="#c62828" stroke-width="1.5"/>
+<text x="897" y="476" text-anchor="middle" font-family="monospace" font-size="8" fill="#b71c1c">1N4007 diode</text>
+<text x="897" y="485" text-anchor="middle" font-family="monospace" font-size="8" fill="#b71c1c">parallēli pumpai!</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- DATA FLOW arrows (top area)                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<rect x="48" y="60" width="580" height="30" rx="6" fill="none" stroke="#78909c" stroke-width="1" stroke-dasharray="4,3"/>
+
+<!-- Sensor nodes → Gateway -->
+<polyline points="80,85 80,100 600,100 600,100" fill="none" stroke="#ef6c00" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+<rect x="240" y="58" width="180" height="20" rx="4" fill="#fff8e1"/>
+<text x="330" y="71" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#555">ESP-NOW  ← Sensor mezgli (g01..g10)</text>
+
+<!-- Gateway → Cloud -->
+<polyline points="800,148 800,80 920,80" fill="none" stroke="#7b1fa2" stroke-width="2" stroke-dasharray="5,2" marker-end="url(#arrow)"/>
+<rect x="825" y="66" width="90" height="20" rx="4" fill="#f3e5f5"/>
+<text x="870" y="79" text-anchor="middle" font-family="monospace" font-size="9" fill="#4a148c">MQTT 4G</text>
+<rect x="840" y="55" width="100" height="18" rx="4" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="1"/>
+<text x="890" y="67" text-anchor="middle" font-family="monospace" font-size="9" fill="#4a148c">→ HiveMQ Cloud</text>
+<text x="890" y="80" text-anchor="middle" font-family="monospace" font-size="9" fill="#4a148c">→ Home Assistant</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- POWER BUDGET + NOTES                                                    -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<rect x="48" y="430" width="310" height="180" rx="10" fill="white" stroke="#78909c" stroke-width="2"/>
+<text x="203" y="450" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#333">Enerģijas budžets</text>
+<line x1="58" y1="455" x2="348" y2="455" stroke="#e0e0e0" stroke-width="1"/>
+<text x="58" y="470" font-family="monospace" font-size="9" fill="#555">Komponents         Patēriņš</text>
+<text x="58" y="485" font-family="monospace" font-size="9" fill="#333">T-SIM7080G-S3 idle    ≈ 80 mA</text>
+<text x="58" y="498" font-family="monospace" font-size="9" fill="#333">SIM7080G TX           ≈ 500 mA (īslaicīgi)</text>
+<text x="58" y="511" font-family="monospace" font-size="9" fill="#333">ESP-NOW uztvērējs     ≈ 120 mA</text>
+<text x="58" y="524" font-family="monospace" font-size="9" fill="#333">Relay (coil aktīvs)   ≈ 75 mA</text>
+<line x1="58" y1="530" x2="348" y2="530" stroke="#e0e0e0" stroke-width="1"/>
+<text x="58" y="543" font-family="monospace" font-size="9" fill="#555">Vidēji (1 MQTT/5min)  ≈ 120 mA</text>
+<text x="58" y="556" font-family="monospace" font-size="9" fill="#2e7d32">Saules 20W, 5h/d → 100mAh/d</text>
+<text x="58" y="569" font-family="monospace" font-size="9" fill="#2e7d32">Patēriņš: 120mA × 24h = 2880mAh</text>
+<text x="58" y="582" font-family="monospace" font-size="9" fill="#c62828">⚠ Trūkums mākoņainā dienā (~2 dienas)</text>
+<text x="58" y="595" font-family="monospace" font-size="9" fill="#1565c0">Risinājums: 2× 18650 (~5Ah) buffers 36h</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- OUTDOOR MOUNTING NOTES                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<rect x="370" y="548" width="280" height="110" rx="10" fill="white" stroke="#78909c" stroke-width="2"/>
+<text x="510" y="568" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#333">Montāža ārpusē</text>
+<line x1="380" y1="573" x2="640" y2="573" stroke="#e0e0e0" stroke-width="1"/>
+<text x="380" y="588" font-family="system-ui,sans-serif" font-size="9" fill="#333">▸ IP65 korpuss namiņa dienvidu sienā</text>
+<text x="380" y="601" font-family="system-ui,sans-serif" font-size="9" fill="#333">▸ Saules panelis uz jumta, dienvidu kārta</text>
+<text x="380" y="614" font-family="system-ui,sans-serif" font-size="9" fill="#333">▸ LTE antena ārpusē (magnētiskā bāze)</text>
+<text x="380" y="627" font-family="system-ui,sans-serif" font-size="9" fill="#333">▸ Kabeļu ieeja apakšā ar silīcija blīvēm</text>
+<text x="380" y="640" font-family="system-ui,sans-serif" font-size="9" fill="#c62828">▸ ⚠ Lucavsala: korpuss ≥ 60 cm virs zemes!</text>
+<text x="380" y="652" font-family="system-ui,sans-serif" font-size="9" fill="#555">▸ Strāva no 12V saules: panelis 12V → saplūst</text>
+
+<!-- Version -->
+<text x="940" y="670" text-anchor="end" font-family="monospace" font-size="8" fill="#aaa">gateway_power.svg  v1.0</text>
+</svg>

@@ -78,7 +78,19 @@ Baterijas kalpošanas laiks: **6–12 mēneši** (15 min intervāls, 50 ms TX).
 
 ## Shēmas
 
-### Sensoru mezgls — pievienojumi
+### Sensoru mezgls — tests (maketēšanas plāksne)
+
+![Testa sensoru mezgla shēma](schematics/test_node.svg)
+
+### Sensoru mezgls — finālā montāža (IP67)
+
+![Finālā sensoru mezgla shēma ar IP67 korpusu](schematics/final_node.svg)
+
+### Vārtejas barošanas ķēde
+
+![Vārtejas barošanas ķēde — saules panelis → LM2596 → DD28CRTA → T-SIM7080G-S3](schematics/gateway_power.svg)
+
+### Sensoru mezgls — pievienojumi (teksts)
 
 ```
 ESP32 DevKit C
@@ -98,7 +110,7 @@ ESP32 DevKit C
     TP4056 OUT- ── GND
 ```
 
-### Vārtejas barošana
+### Vārtejas barošana (teksts)
 
 ```
 Saules panelis 12V

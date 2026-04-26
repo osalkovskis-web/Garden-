@@ -1,0 +1,226 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 720" width="980" height="720">
+<defs>
+  <pattern id="dots2" width="20" height="20" patternUnits="userSpaceOnUse">
+    <circle cx="10" cy="10" r="0.8" fill="#ddd"/>
+  </pattern>
+</defs>
+
+<!-- Background -->
+<rect width="980" height="720" fill="#f8f9fa" rx="12"/>
+<rect width="980" height="720" fill="url(#dots2)"/>
+
+<!-- Title bar -->
+<rect x="0" y="0" width="980" height="46" fill="#0d47a1" rx="12"/>
+<rect x="0" y="30" width="980" height="16" fill="#0d47a1"/>
+<text x="490" y="29" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" font-weight="bold" fill="white">FINAL — Sensoru mezgls montāža  (IP67 korpuss, lodēts)</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- IP67 ENCLOSURE outline                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<rect x="38" y="62" width="600" height="395" rx="18" fill="none" stroke="#78909c" stroke-width="3" stroke-dasharray="10,5"/>
+<text x="338" y="78" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#546e7a">IP67 Korpuss  (~120×80×55 mm)</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- WIRES                                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- Battery → TP4056 (internal, amber) -->
+<polyline points="155,175 155,255" fill="none" stroke="#f57f17" stroke-width="2.5"/>
+<polyline points="185,175 185,255" fill="none" stroke="#37474f" stroke-width="2.5"/>
+
+<!-- TP4056 OUT+ → ESP32 VIN (red) -->
+<polyline points="245,272 270,272 270,185 310,185" fill="none" stroke="#e53935" stroke-width="2.5"/>
+<circle cx="270" cy="272" r="4" fill="#e53935"/>
+
+<!-- Voltage divider branch -->
+<polyline points="270,272 270,400 258,400" fill="none" stroke="#e53935" stroke-width="2"/>
+
+<!-- TP4056 OUT− → GND rail -->
+<polyline points="245,300 285,300 285,495" fill="none" stroke="#212121" stroke-width="2.5"/>
+
+<!-- ESP32 GND → GND -->
+<polyline points="310,235 295,235 295,495" fill="none" stroke="#212121" stroke-width="2.5"/>
+
+<!-- 3V3 bus (from ESP32 3V3 right) -->
+<polyline points="480,205 480,112 830,112" fill="none" stroke="#ef6c00" stroke-width="2.5"/>
+<!-- 3V3 drops -->
+<polyline points="685,112 685,205" fill="none" stroke="#ef6c00" stroke-width="2"/>
+<polyline points="810,112 810,390 685,390" fill="none" stroke="#ef6c00" stroke-width="2"/>
+<polyline points="530,112 530,365 581,365" fill="none" stroke="#ef6c00" stroke-width="2"/>
+
+<!-- GPIO32 → MOSFET Gate -->
+<polyline points="480,255 540,255" fill="none" stroke="#1565c0" stroke-width="2.5"/>
+
+<!-- Moisture AOUT → GPIO34 -->
+<polyline points="685,235 668,235 668,310 480,310" fill="none" stroke="#7b1fa2" stroke-width="2.5" stroke-dasharray="6,2"/>
+
+<!-- GPIO25 → DATA via R3 -->
+<polyline points="480,400 581,400 685,400" fill="none" stroke="#2e7d32" stroke-width="2.5"/>
+<circle cx="581" cy="400" r="4" fill="#2e7d32"/>
+
+<!-- Moisture GND → MOSFET Drain -->
+<polyline points="685,225 598,225 598,222" fill="none" stroke="#b71c1c" stroke-width="2" stroke-dasharray="4,2"/>
+
+<!-- MOSFET Source → GND -->
+<polyline points="598,308 598,495" fill="none" stroke="#212121" stroke-width="2.5"/>
+
+<!-- DS18B20 GND → GND -->
+<polyline points="685,418 685,495" fill="none" stroke="#212121" stroke-width="2.5"/>
+
+<!-- R1-R2 midpoint → GPIO35 -->
+<polyline points="249,450 249,460" fill="none" stroke="#e53935" stroke-width="2"/>
+<polyline points="249,450 310,450" fill="none" stroke="#7b1fa2" stroke-width="2" stroke-dasharray="5,2"/>
+<circle cx="249" cy="450" r="3.5" fill="#7b1fa2"/>
+
+<!-- R2 bottom → GND -->
+<polyline points="249,475 249,495" fill="none" stroke="#212121" stroke-width="2"/>
+
+<!-- GND rail -->
+<line x1="280" y1="495" x2="830" y2="495" stroke="#212121" stroke-width="3.5"/>
+<text x="555" y="512" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#212121">⏚  GND</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- COMPONENTS                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- 18650 Battery Holder -->
+<rect x="110" y="120" width="115" height="55" rx="7" fill="#fffde7" stroke="#f57f17" stroke-width="2.5"/>
+<text x="167" y="142" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#e65100">18650</text>
+<text x="167" y="157" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#bf360c">Baterijas turētājs</text>
+<text x="148" y="172" font-family="monospace" font-size="9" fill="#e53935" text-anchor="middle">B+</text>
+<text x="187" y="172" font-family="monospace" font-size="9" fill="#333" text-anchor="middle">B−</text>
+<circle cx="155" cy="175" r="3" fill="#f57f17"/>
+<circle cx="185" cy="175" r="3" fill="#37474f"/>
+
+<!-- TP4056 + DW01 (with protection) -->
+<rect x="110" y="255" width="135" height="65" rx="7" fill="#e3f2fd" stroke="#1565c0" stroke-width="2.5"/>
+<text x="177" y="277" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="bold" fill="#0d47a1">TP4056 + DW01</text>
+<text x="177" y="292" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#1565c0">Ar baterijas aizsardzību</text>
+<text x="113" y="258" font-family="monospace" font-size="8" fill="#e53935">B+</text>
+<text x="185" y="258" font-family="monospace" font-size="8" fill="#333">B−</text>
+<text x="250" y="274" font-family="monospace" font-size="8" fill="#e53935" text-anchor="start">OUT+</text>
+<text x="250" y="302" font-family="monospace" font-size="8" fill="#333" text-anchor="start">OUT−</text>
+<circle cx="245" cy="272" r="3" fill="#e53935"/>
+<circle cx="245" cy="300" r="3" fill="#37474f"/>
+
+<!-- Micro-USB charging port (on enclosure) -->
+<rect x="58" y="268" width="36" height="20" rx="4" fill="#cfd8dc" stroke="#78909c" stroke-width="1.5"/>
+<text x="76" y="282" text-anchor="middle" font-family="monospace" font-size="8" fill="#37474f">USB-μ</text>
+<text x="76" y="295" text-anchor="middle" font-family="monospace" font-size="7" fill="#888">uzlāde</text>
+
+<!-- ESP32 DevKit C (smaller in final - could use bare module) -->
+<rect x="310" y="165" width="170" height="310" rx="10" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2.5"/>
+<text x="395" y="190" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="bold" fill="#1b5e20">ESP32</text>
+<text x="395" y="206" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#388e3c">DevKit C  (vai WROOM moduļis)</text>
+<line x1="320" y1="212" x2="470" y2="212" stroke="#a5d6a7" stroke-width="1"/>
+<!-- Left pins -->
+<text x="315" y="188" font-family="monospace" font-size="8" fill="#c62828">VIN</text>
+<text x="315" y="238" font-family="monospace" font-size="8" fill="#333">GND</text>
+<text x="315" y="288" font-family="monospace" font-size="8" fill="#bf360c">3V3</text>
+<text x="315" y="453" font-family="monospace" font-size="8" fill="#6a1b9a">GPIO35</text>
+<circle cx="310" cy="185" r="3" fill="#e53935"/>
+<circle cx="310" cy="235" r="3" fill="#212121"/>
+<circle cx="310" cy="285" r="3" fill="#ef6c00"/>
+<circle cx="310" cy="450" r="3" fill="#7b1fa2"/>
+<!-- Right pins -->
+<text x="482" y="208" font-family="monospace" font-size="8" fill="#bf360c">3V3</text>
+<text x="482" y="258" font-family="monospace" font-size="8" fill="#1565c0">GPIO32</text>
+<text x="482" y="313" font-family="monospace" font-size="8" fill="#6a1b9a">GPIO34</text>
+<text x="482" y="403" font-family="monospace" font-size="8" fill="#2e7d32">GPIO25</text>
+<circle cx="480" cy="205" r="3" fill="#ef6c00"/>
+<circle cx="480" cy="255" r="3" fill="#1565c0"/>
+<circle cx="480" cy="310" r="3" fill="#7b1fa2"/>
+<circle cx="480" cy="400" r="3" fill="#2e7d32"/>
+
+<!-- IRLZ44N MOSFET (SMD or TO-220) -->
+<rect x="540" y="218" width="90" height="90" rx="7" fill="#fafafa" stroke="#424242" stroke-width="2.5"/>
+<text x="585" y="242" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="bold" fill="#212121">IRLZ44N</text>
+<text x="585" y="257" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#555">N-MOSFET</text>
+<text x="585" y="272" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#888">Low-side</text>
+<text x="543" y="254" font-family="monospace" font-size="8" fill="#1565c0">G</text>
+<text x="582" y="220" font-family="monospace" font-size="8" fill="#b71c1c" text-anchor="middle">D</text>
+<text x="582" y="316" font-family="monospace" font-size="8" fill="#333" text-anchor="middle">S→GND</text>
+<circle cx="540" cy="255" r="3" fill="#1565c0"/>
+<circle cx="598" cy="218" r="3" fill="#b71c1c"/>
+<circle cx="598" cy="308" r="3" fill="#212121"/>
+
+<!-- Capacitive Moisture Sensor v1.2 -->
+<rect x="685" y="168" width="145" height="135" rx="8" fill="#fce4ec" stroke="#c62828" stroke-width="2.5"/>
+<text x="757" y="192" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#b71c1c">Kapacitīvs</text>
+<text x="757" y="207" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#b71c1c">Sensors v1.2</text>
+<rect x="728" y="222" width="44" height="65" rx="3" fill="#ef9a9a" stroke="#c62828" stroke-width="1.5"/>
+<text x="750" y="260" text-anchor="middle" font-family="monospace" font-size="8" fill="#b71c1c">ZONDE</text>
+<text x="682" y="208" font-family="monospace" font-size="9" fill="#ef6c00" text-anchor="end">VCC</text>
+<text x="682" y="228" font-family="monospace" font-size="9" fill="#b71c1c" text-anchor="end">GND</text>
+<text x="682" y="238" font-family="monospace" font-size="9" fill="#7b1fa2" text-anchor="end">AOUT</text>
+<circle cx="685" cy="205" r="3.5" fill="#ef6c00"/>
+<circle cx="685" cy="225" r="3.5" fill="#b71c1c"/>
+<circle cx="685" cy="235" r="3.5" fill="#7b1fa2"/>
+
+<!-- DS18B20 Waterproof -->
+<rect x="685" y="375" width="145" height="80" rx="8" fill="#e8f5e9" stroke="#1b5e20" stroke-width="2.5"/>
+<text x="757" y="398" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#1b5e20">DS18B20</text>
+<text x="757" y="413" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#2e7d32">Waterproof</text>
+<text x="757" y="426" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#388e3c">Kabels 1m</text>
+<text x="682" y="392" font-family="monospace" font-size="9" fill="#ef6c00" text-anchor="end">VCC (sarkans)</text>
+<text x="682" y="402" font-family="monospace" font-size="9" fill="#2e7d32" text-anchor="end">DATA (dzeltens)</text>
+<text x="682" y="420" font-family="monospace" font-size="9" fill="#333" text-anchor="end">GND (melns)</text>
+<circle cx="685" cy="390" r="3.5" fill="#ef6c00"/>
+<circle cx="685" cy="400" r="3.5" fill="#2e7d32"/>
+<circle cx="685" cy="418" r="3.5" fill="#212121"/>
+
+<!-- Voltage Divider R1, R2 -->
+<rect x="238" y="430" width="22" height="22" rx="3" fill="#fff8e1" stroke="#e65100" stroke-width="2"/>
+<text x="230" y="425" font-family="monospace" font-size="8" fill="#e65100" text-anchor="end">R1 100k</text>
+<rect x="238" y="460" width="22" height="22" rx="3" fill="#fff8e1" stroke="#e65100" stroke-width="2"/>
+<text x="230" y="476" font-family="monospace" font-size="8" fill="#e65100" text-anchor="end">R2 100k</text>
+
+<!-- R3 Pull-up -->
+<rect x="570" y="360" width="22" height="42" rx="3" fill="#fff8e1" stroke="#e65100" stroke-width="2"/>
+<text x="568" y="352" font-family="monospace" font-size="8" fill="#e65100" text-anchor="middle">R3  4.7k</text>
+
+<!-- Labels inside enclosure -->
+<text x="355" y="530" font-family="system-ui,sans-serif" font-size="9" fill="#546e7a" text-anchor="middle">Viss šajā zonā atrodas IP67 korpusā</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- EXTERNAL CONNECTIONS SECTION (right panel)                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<rect x="650" y="540" width="295" height="155" rx="10" fill="white" stroke="#78909c" stroke-width="2"/>
+<text x="797" y="560" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#333">Kabeļu izvadi no korpusa</text>
+<line x1="660" y1="565" x2="935" y2="565" stroke="#e0e0e0" stroke-width="1"/>
+
+<circle cx="668" cy="582" r="5" fill="#f57f17"/>
+<text x="678" y="586" font-family="system-ui,sans-serif" font-size="10" fill="#333">Micro-USB (uzlāde, TP4056 — korpusā ierīkots)</text>
+
+<circle cx="668" cy="602" r="5" fill="#ef9a9a"/>
+<text x="678" y="606" font-family="system-ui,sans-serif" font-size="10" fill="#333">Sensora zonde — kapacitīvais sensors</text>
+
+<circle cx="668" cy="622" r="5" fill="#a5d6a7"/>
+<text x="678" y="626" font-family="system-ui,sans-serif" font-size="10" fill="#333">DS18B20 temperatūras zonde (1m kabelis)</text>
+
+<circle cx="668" cy="642" r="5" fill="#90caf9"/>
+<text x="678" y="646" font-family="system-ui,sans-serif" font-size="10" fill="#333">ESP-NOW antena (ESP32 iebūvētā, korpuss plastmasa)</text>
+
+<circle cx="668" cy="662" r="5" fill="#ffe082"/>
+<text x="678" y="666" font-family="system-ui,sans-serif" font-size="10" fill="#333">Programmēšana: USB (pirmreizēji), tad OTA caur WiFi</text>
+
+<text x="660" y="686" font-family="system-ui,sans-serif" font-size="9" fill="#888">Svarīgi: silīcija blīvslānis ap kabeļu caurumiem (IP67)</text>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- POWER BUDGET TABLE                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<rect x="40" y="478" width="290" height="152" rx="10" fill="white" stroke="#78909c" stroke-width="2"/>
+<text x="185" y="498" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="bold" fill="#333">Strāvas patēriņš</text>
+<line x1="50" y1="503" x2="320" y2="503" stroke="#e0e0e0" stroke-width="1"/>
+<text x="50" y="520" font-family="monospace" font-size="9" fill="#555">Stāvoklis              Strāva</text>
+<text x="50" y="536" font-family="monospace" font-size="9" fill="#333">Deep sleep             ≈ 10–20 µA</text>
+<text x="50" y="551" font-family="monospace" font-size="9" fill="#333">ADC mērīšana (200ms)   ≈ 50–80 mA</text>
+<text x="50" y="566" font-family="monospace" font-size="9" fill="#333">ESP-NOW TX (50ms)      ≈ 100–140 mA</text>
+<text x="50" y="581" font-family="monospace" font-size="9" fill="#333">Vidēji (15min cikls)   ≈ 25–40 µA</text>
+<line x1="50" y1="587" x2="320" y2="587" stroke="#e0e0e0" stroke-width="1"/>
+<text x="50" y="601" font-family="monospace" font-size="9" fill="#2e7d32">18650 2500mAh → ≈ 2.5–4 gadi</text>
+<text x="50" y="616" font-family="monospace" font-size="9" fill="#888">(praktiskais laiks ar pašizlādi)</text>
+
+<!-- Version label -->
+<text x="940" y="712" text-anchor="end" font-family="monospace" font-size="8" fill="#aaa">final_node.svg  v1.0</text>
+</svg>
