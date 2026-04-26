@@ -4,6 +4,8 @@ Autonomous garden monitoring system for a 438m² plot on Kazas sēklis island, L
 
 **[📱 Open Web Dashboard →](https://osalkovskis-web.github.io/Garden-/)**
 
+> **IoT augsnes mitruma sensoru sistēma** (ESP32 + ESP-NOW + 4G + Home Assistant) → **[iot/README.md](iot/README.md)**
+
 ---
 
 ## Hardware
